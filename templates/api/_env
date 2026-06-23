@@ -1,0 +1,8 @@
+PORT=__PORT__
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USER=postgres
+DATABASE_PASSWORD=postgres
+DATABASE_NAME=__DB_NAME__
+JWT_SECRET=change_this_to_a_long_random_string
+JWT_EXPIRES_IN=7d
