@@ -1,6 +1,6 @@
 {
   "name": "create-ahad-backend",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold a Node.js + Express + TypeScript + TypeORM + PostgreSQL + JWT backend with one command.",
   "type": "module",
   "bin": {
