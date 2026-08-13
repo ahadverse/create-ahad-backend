@@ -3,11 +3,13 @@ import path from "path";
 
 export type Placeholders = Record<string, string>;
 
-function renameUnderscoreFile(filename: string): string {
-  if (!filename.startsWith("_")) return filename;
-  const rest = filename.slice(1);
-  const hasExtension = rest.includes(".");
-  return hasExtension ? rest : `.${rest}`;
+// Template files are prefixed so they are inert inside this repo:
+//   _dot_env      -> .env          (dotfiles, including ones with an extension)
+//   _package.json -> package.json  (files that would otherwise be picked up by tooling)
+function renameTemplateFile(filename: string): string {
+  if (filename.startsWith("_dot_")) return `.${filename.slice("_dot_".length)}`;
+  if (filename.startsWith("_")) return filename.slice(1);
+  return filename;
 }
 
 function applyPlaceholders(content: string, placeholders: Placeholders): string {
@@ -24,7 +26,7 @@ async function copyDir(sourceDir: string, destDir: string, placeholders: Placeho
 
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
-    const destPath = path.join(destDir, renameUnderscoreFile(entry.name));
+    const destPath = path.join(destDir, renameTemplateFile(entry.name));
 
     if (entry.isDirectory()) {
       await copyDir(sourcePath, destPath, placeholders);

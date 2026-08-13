@@ -9,7 +9,9 @@ export class User {
   @Column({ type: "varchar", unique: true })
   email!: string;
 
-  @Column({ type: "varchar" })
+  // select: false keeps the hash out of every query that does not explicitly ask for it,
+  // so it can never leak through a response that serializes a User.
+  @Column({ type: "varchar", select: false })
   password!: string;
 
   @CreateDateColumn({ type: "timestamp" })

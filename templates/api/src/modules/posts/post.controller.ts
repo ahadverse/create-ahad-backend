@@ -2,7 +2,7 @@ import { AppDataSource } from "../../data-source";
 import { Post } from "./post.entity";
 import { AuthenticatedRequest } from "../../middleware/auth";
 import { NotFoundError } from "../../errors/NotFoundError";
-import { UnauthorizedError } from "../../errors/UnauthorizedError";
+import { ForbiddenError } from "../../errors/ForbiddenError";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiResponse, Paginated } from "../../types/api";
 import {
@@ -56,17 +56,15 @@ export const updatePost = asyncHandler<AuthenticatedRequest>(async (req, res) =>
   const input = updatePostSchema.parse(req.body);
   const postRepo = AppDataSource.getRepository(Post);
 
-  const post = await postRepo.findOne({
-    where: { id: req.params.id },
-    relations: { author: true },
-  });
+  // authorId comes from @RelationId, so ownership is checked without loading the author.
+  const post = await postRepo.findOne({ where: { id: req.params.id } });
 
   if (!post) {
     throw new NotFoundError("Post not found");
   }
 
-  if (post.author.id !== req.userId) {
-    throw new UnauthorizedError("You do not own this post");
+  if (post.authorId !== req.userId) {
+    throw new ForbiddenError("You do not own this post");
   }
 
   Object.assign(post, input);
@@ -79,17 +77,14 @@ export const updatePost = asyncHandler<AuthenticatedRequest>(async (req, res) =>
 export const deletePost = asyncHandler<AuthenticatedRequest>(async (req, res) => {
   const postRepo = AppDataSource.getRepository(Post);
 
-  const post = await postRepo.findOne({
-    where: { id: req.params.id },
-    relations: { author: true },
-  });
+  const post = await postRepo.findOne({ where: { id: req.params.id } });
 
   if (!post) {
     throw new NotFoundError("Post not found");
   }
 
-  if (post.author.id !== req.userId) {
-    throw new UnauthorizedError("You do not own this post");
+  if (post.authorId !== req.userId) {
+    throw new ForbiddenError("You do not own this post");
   }
 
   await postRepo.remove(post);

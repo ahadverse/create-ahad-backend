@@ -30,7 +30,11 @@ export const login = asyncHandler(async (req, res) => {
   const { email, password } = loginSchema.parse(req.body);
   const userRepo = AppDataSource.getRepository(User);
 
-  const user = await userRepo.findOne({ where: { email } });
+  // password is select: false on the entity, so ask for it explicitly here.
+  const user = await userRepo.findOne({
+    where: { email },
+    select: { id: true, email: true, password: true },
+  });
   if (!user) {
     throw new UnauthorizedError("Invalid email or password");
   }
